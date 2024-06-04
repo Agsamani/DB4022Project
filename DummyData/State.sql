@@ -1,0 +1,15 @@
+insert into State (StateID, SName) values (1, 'Illinois');
+insert into State (StateID, SName) values (2, 'Maryland');
+insert into State (StateID, SName) values (3, 'Florida');
+insert into State (StateID, SName) values (4, 'California');
+insert into State (StateID, SName) values (5, 'Pennsylvania');
+insert into State (StateID, SName) values (6, 'New York');
+insert into State (StateID, SName) values (7, 'New Mexico');
+insert into State (StateID, SName) values (8, 'Wisconsin');
+insert into State (StateID, SName) values (9, 'Alaska');
+insert into State (StateID, SName) values (10, 'Kentucky');
+insert into State (StateID, SName) values (11, 'Ohio');
+insert into State (StateID, SName) values (12, 'Texas');
+insert into State (StateID, SName) values (13, 'Iowa');
+insert into State (StateID, SName) values (14, 'Hawaii');
+insert into State (StateID, SName) values (15, 'Virginia');
