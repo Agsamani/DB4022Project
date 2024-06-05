@@ -58,3 +58,4 @@ insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (116, 'Penrod', 'Wedmore', 'pwedmore1l@psu.edu', '8337787199', 63);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (118, 'Kimmie', 'Duddin', 'kduddin1m@comcast.net', '9456545531', 33);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (120, 'Jacinda', 'Gaskall', 'jgaskall1n@cmu.edu', '7499486205', 11);
+insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (122, 'Jacjinda', 'Gall', 'jga1n@cmu.edu', '7499486205', 11);

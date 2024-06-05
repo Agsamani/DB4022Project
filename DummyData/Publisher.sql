@@ -118,3 +118,5 @@ insert into Publisher (PubID, IsActive, RegDate) values (117, true, '2023-10-30 
 insert into Publisher (PubID, IsActive, RegDate) values (118, false, '2023-07-20 03:10:56');
 insert into Publisher (PubID, IsActive, RegDate) values (119, false, '2023-06-28 17:49:44');
 insert into Publisher (PubID, IsActive, RegDate) values (120, false, '2023-08-26 07:05:00');
+insert into Publisher (PubID, IsActive, RegDate) values (122, false, '2023-04-16 07:05:00');
+

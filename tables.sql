@@ -46,6 +46,7 @@ CREATE TABLE BusinessCategory (
 
 CREATE TABLE Business (
   PubID INT,
+  UserID INT,
   BName VARCHAR(255) NOT NULL,
   CatID INT,
   RegistrationNum BIGINT NOT NULL,

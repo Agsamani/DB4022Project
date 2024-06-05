@@ -58,3 +58,6 @@ insert into Modified (AdminID, AdvertisementID) values (76, 263);
 insert into Modified (AdminID, AdvertisementID) values (87, 617);
 insert into Modified (AdminID, AdvertisementID) values (53, 773);
 insert into Modified (AdminID, AdvertisementID) values (74, 491);
+insert into Modified (AdminID, AdvertisementID) values (74, 41);
+insert into Modified (AdminID, AdvertisementID) values (74, 473);
+insert into Modified (AdminID, AdvertisementID) values (74, 432);
