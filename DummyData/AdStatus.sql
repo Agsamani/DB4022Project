@@ -598,3 +598,8 @@ insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) value
 insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1195, 1, 'quis tortor id nulla ultrices aliquet maecenas leo', '6/14/2023');
 insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1197, 0, 'bibendum imperdiet nullam orci pede venenatis non sodales sed tincidunt eu felis fusce', '10/4/2023');
 insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1199, 2, 'aenean lectus pellentesque eget nunc donec quis orci eget orci vehicula condimentum', '1/21/2024');
+insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1206, 2, null, null);
+insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1207, 2, null, null);
+insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1208, 2, null, null);
+insert into AdStatus (AdvertisementID, AdStateID, AdminComment, UpdatedAt) values (1209, 2, null, null);
+

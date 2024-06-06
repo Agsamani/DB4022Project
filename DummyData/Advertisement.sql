@@ -1203,3 +1203,7 @@ insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, C
 insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1203, 3, 'aen fe', 12168, '2024-06-1 21:03:22', 35, '1/21/2025', null, 2);
 insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1204, 86, 'et ultrices posuere cubilia is viverra', null, '2023-10-01 11:40:22', 25, null, null, 0);
 insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1205, 81, 'et ultverra', null, '2024-6-6 5:40:22', 25, null, null, 0);
+insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1206, 120, 'nunc vestibulum', 55618, '2023-07-28 14:01:25', 37, '6/20/2025', null, 1);
+insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1207, 120, 'nunc vestibulum', 55618, '2023-07-28 14:01:25', 37, '6/20/2025', null, 1);
+insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1208, 120, 'nunc vestibulum', 55618, '2023-07-28 14:01:25', 37, '6/20/2025', null, 1);
+insert into Advertisement (AdvertisementID, PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID) values (1209, 120, 'nunc vestibulum', 55618, '2024-06-5 14:01:25', 37, '6/20/2025', null, 1);

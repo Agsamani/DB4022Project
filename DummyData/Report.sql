@@ -50,3 +50,7 @@ insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (875
 insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (231, 10, 106, null, 'vel pede morbi porttitor lorem id ligula suspendisse ornare consequat lectus in est risus');
 insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (875, 9, 54, 0, 'morbi ut odio cras mi pede malesuada in imperdiet et commodo vulputate justo in blandit ultrices enim lorem ipsum');
 insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (605, 3, 116, 2, 'nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel');
+insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (1206, 0, 116, 2, 'nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel');
+insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (1206, 1, 16, 2, 'nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel');
+insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (1206, 2, 6, 2, 'nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel');
+insert into Report (AdvertisementID, ReportID, UserID, CatID, RDesc) values (1206, 3, 8, 2, 'nulla pede ullamcorper augue a suscipit nulla elit ac nulla sed vel');

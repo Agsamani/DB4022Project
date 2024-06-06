@@ -6,7 +6,7 @@ insert into State (StateID, SName) values (5, 'Pennsylvania');
 insert into State (StateID, SName) values (6, 'New York');
 insert into State (StateID, SName) values (7, 'New Mexico');
 insert into State (StateID, SName) values (8, 'Wisconsin');
-insert into State (StateID, SName) values (9, 'Alaska');
+insert into State (StateID, SName) values (9, 'Fars');
 insert into State (StateID, SName) values (10, 'Kentucky');
 insert into State (StateID, SName) values (11, 'Ohio');
 insert into State (StateID, SName) values (12, 'Texas');

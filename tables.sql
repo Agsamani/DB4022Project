@@ -173,9 +173,12 @@ CREATE TABLE Visit (
 CREATE TABLE Modified (
   AdminID INT,
   AdvertisementID INT,
-  PRIMARY KEY(AdminID, AdvertisementID),
+  ModDate TIMESTAMP,
+  ToStateID INT, 
+  PRIMARY KEY(AdminID, AdvertisementID, ModDate),
   FOREIGN KEY(AdminID) REFERENCES Administrator(AdminID),
   FOREIGN KEY(AdvertisementID) REFERENCES Advertisement(AdvertisementID)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 

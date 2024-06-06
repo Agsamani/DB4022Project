@@ -117,4 +117,6 @@ insert into HomeAppliance (AdvertisementID, Brand, Material) values (1155, 'null
 insert into HomeAppliance (AdvertisementID, Brand, Material) values (1165, 'consequat', 'nullam');
 insert into HomeAppliance (AdvertisementID, Brand, Material) values (1175, 'odio', 'turpis');
 insert into HomeAppliance (AdvertisementID, Brand, Material) values (1185, null, null);
-insert into HomeAppliance (AdvertisementID, Brand, Material) values (1195, 'amet', 'condimentum');
+insert into HomeAppliance (AdvertisementID, Brand, Material) values (1195, 'amAet', 'condimentum');
+insert into HomeAppliance (AdvertisementID, Brand, Material) values (1209, 'amSet', 'condimentum');
+insert into HomeAppliance (AdvertisementID, Brand, Material) values (1208, 'aAmet', 'condimentum');
