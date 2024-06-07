@@ -15,8 +15,9 @@ CREATE TABLE Administrator (
   AdminID INT PRIMARY KEY,
   FirstName VARCHAR(255) NOT NULL,
   LastName VARCHAR(255) NOT NULL,
-  Email VARCHAR(255),
-  Phone VARCHAR(11)
+  Email VARCHAR(255) UNIQUE,
+  Phone VARCHAR(11) UNIQUE,
+  CHECK (Email IS NOT NULL OR Phone IS NOT NULL)
 );
 
 CREATE TABLE Publisher (
@@ -29,9 +30,10 @@ CREATE TABLE NormalUser (
   PubID INT,
   FirstName VARCHAR(255) NOT NULL,
   LastName VARCHAR(255) NOT NULL,
-  Email VARCHAR(255),
-  Phone VARCHAR(11),
+  Email VARCHAR(255) UNIQUE,
+  Phone VARCHAR(11) UNIQUE,
   CityID INT NOT NULL,
+  CHECK (Email IS NOT NULL OR Phone IS NOT NULL),
   FOREIGN KEY(CityID) REFERENCES City(CityID),
   PRIMARY KEY(PubID),
   FOREIGN KEY(PubID) REFERENCES Publisher(PubID)
@@ -193,7 +195,7 @@ INSERT INTO StatusState(AdStateID, AdStateName) VALUES (1, 'ACCEPTED');
 INSERT INTO StatusState(AdStateID, AdStateName) VALUES (2, 'REJECTED');
 
 INSERT INTO ReportCategory(CatID, CatName) VALUES (0, 'Offensive');
-INSERT INTO ReportCategory(CatID, CatName) VALUES (1, 'WTF is this');
+INSERT INTO ReportCategory(CatID, CatName) VALUES (1, 'Violence');
 INSERT INTO ReportCategory(CatID, CatName) VALUES (2, 'Not Accurate');
 INSERT INTO ReportCategory(CatID, CatName) VALUES (3, 'Bad Word');
 INSERT INTO ReportCategory(CatID, CatName) VALUES (4, 'Not Good');

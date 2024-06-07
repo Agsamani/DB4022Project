@@ -16,7 +16,7 @@ insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (32, 'Elyn', 'McKinn', null, '7066847523', 11);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (34, 'Harcourt', 'Rodenburgh', 'hrodenburghg@hubpages.com', '6989370396', 11);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (36, 'Cornela', 'Jendrich', 'cjendrichh@ihg.com', '1704538154', 9);
-insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (38, 'Wolfy', 'Kinane', null, null, 20);
+insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (38, 'Wolfy', 'Kinane', 'nnn@nnn.com', null, 20);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (40, 'Wilhelmina', 'Croker', 'wcrokerj@meetup.com', '5713846966', 60);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (42, 'Umberto', 'Trevaskis', 'utrevaskisk@yelp.com', '9348397296', 57);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (44, 'Zabrina', 'Klaassens', 'zklaassensl@hc360.com', '2661857885', 36);
@@ -58,4 +58,4 @@ insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (116, 'Penrod', 'Wedmore', 'pwedmore1l@psu.edu', '8337787199', 63);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (118, 'Kimmie', 'Duddin', 'kduddin1m@comcast.net', '9456545531', 33);
 insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (120, 'Jacinda', 'Gaskall', 'jgaskall1n@cmu.edu', '7499486205', 11);
-insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (122, 'Jacjinda', 'Gall', 'jga1n@cmu.edu', '7499486205', 11);
+insert into NormalUser (PubID, FirstName, LastName, Email, Phone, CityID) values (122, 'Jacjinda', 'Gall', 'jga1n@cmu.edu', '7490486205', 11);

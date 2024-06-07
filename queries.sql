@@ -424,7 +424,7 @@ $$;
 DROP FUNCTION func8(i_cat TEXT);
 
 CREATE OR REPLACE FUNCTION func8(i_cat TEXT)
-   RETURNS SETOF NormalUser
+   RETURNS SETOF Advertisement
    LANGUAGE plpgsql
   AS
 $$
@@ -438,11 +438,24 @@ BEGIN
         RAISE EXCEPTION 'Invalid category';
     END IF;
 
-    RETURN QUERY
-        SELECT NormalUser.* FROM Advertisement
+    DROP TABLE IF EXISTS ad_table;
+
+    CREATE TEMP TABLE ad_table AS
+        SELECT Advertisement.AdvertisementID FROM Advertisement
         JOIN Report ON Advertisement.AdvertisementID = Report.AdvertisementID
-        JOIN NormalUser ON Advertisement.PubID = NormalUser.PubID
         WHERE Report.CatID = v_CatID
-        GROUP BY NormalUser.PubID;
+        GROUP BY Advertisement.AdvertisementID
+        HAVING COUNT(Report.ReportID) >= ALL (
+            SELECT COUNT(Report.ReportID) FROM Advertisement
+            JOIN Report ON Advertisement.AdvertisementID = Report.AdvertisementID
+            WHERE Report.CatID = v_CatID
+            GROUP BY Advertisement.AdvertisementID
+        );
+
+    RETURN QUERY
+        SELECT * FROM Advertisement
+        WHERE Advertisement.AdvertisementID IN (
+            SELECT ad_table.AdvertisementID FROM ad_table
+        );
 END;
 $$;
