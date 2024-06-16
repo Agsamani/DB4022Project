@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'WolMain',
+    'WolApi',
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
