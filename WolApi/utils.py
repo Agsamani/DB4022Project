@@ -2,7 +2,7 @@ import random
 import string
 from django.core.cache import cache
 
-OTP_EXPIRY_TIME = 10  # OTP expiry time in seconds (5 minutes)
+OTP_EXPIRY_TIME = 300  # OTP expiry time in seconds (5 minutes)
 
 # TODO: use proper OTP generator
 # TODO: send OTP to phone or email

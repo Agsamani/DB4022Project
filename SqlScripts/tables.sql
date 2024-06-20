@@ -70,7 +70,7 @@ CREATE TABLE Advertisement (
   AdvertisementID SERIAL,
   PubID INT NOT NULL,
   Title VARCHAR(255) NOT NULL,
-  Price INT,
+  Price DECIMAL(14,4),
   CreationDate TIMESTAMP NOT NULL,
   CityID INT NOT NULL,
   UpdateDate TIMESTAMP,

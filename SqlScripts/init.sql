@@ -25,8 +25,8 @@ GRANT postgres TO wolUser;
 \c woldb
 \i 'SqlScripts\\tables.sql'
 
--- \i 'SqlScripts\\DummyData\\State.sql'
--- \i 'SqlScripts\\DummyData\\City.sql'
+\i 'SqlScripts\\DummyData\\State.sql'
+\i 'SqlScripts\\DummyData\\City.sql'
 -- \i 'SqlScripts\\DummyData\\Administrator.sql'
 -- \i 'SqlScripts\\DummyData\\Publisher.sql'
 -- \i 'SqlScripts\\DummyData\\NormalUser.sql'
