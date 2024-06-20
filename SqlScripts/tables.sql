@@ -67,7 +67,7 @@ CREATE TABLE AdCategory (
 );
 
 CREATE TABLE Advertisement (
-  AdvertisementID INT,
+  AdvertisementID SERIAL,
   PubID INT NOT NULL,
   Title VARCHAR(255) NOT NULL,
   Price INT,
@@ -81,6 +81,15 @@ CREATE TABLE Advertisement (
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY(CityID) REFERENCES City(CityID),
   FOREIGN KEY(CatID) REFERENCES AdCategory(CatID)
+);
+
+CREATE TABLE Images (
+    ImageID SERIAL,
+    AdvertisementID INT NOT NULL,
+    Url VARCHAR(511) NOT NULL,
+    PRIMARY KEY(ImageID),
+    FOREIGN KEY(AdvertisementID) REFERENCES Advertisement(AdvertisementID)
+      ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
