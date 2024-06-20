@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.db import connection
+from django.contrib.auth.models import User
+
 
 from datetime import datetime
 
@@ -32,7 +34,7 @@ class NormalUserSerializer(serializers.Serializer):
         with connection.cursor() as cursor:
             isactive = validated_data["isactive"] if "isactive" in validated_data else True
             cursor.execute(
-                "INSERT INTO publisher (isactive, regdate) VALUES (%s, %s) RETURNING pubid",
+                "INSERT INTO Publisher (isactive, regdate) VALUES (%s, %s) RETURNING pubid",
                 [isactive,
                  datetime.now()]
             )
@@ -47,4 +49,14 @@ class NormalUserSerializer(serializers.Serializer):
                  validated_data.get('phone'),
                  validated_data.get('cityid')]
             )
+        User.objects.create(id=pubid,
+                                   username=validated_data.get('firstname') + "_" + validated_data.get('lastname'),
+                                   email=validated_data.get('email'),
+                                   password="12345678")
         return validated_data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta(object):
+        model = User
+        fields = ['id', 'username', 'email']

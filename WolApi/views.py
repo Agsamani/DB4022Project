@@ -3,13 +3,62 @@ from django.db import connection
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
+
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import *
+from . import utils
 
 # Create your views here.
 
+@api_view(['POST'])
+def get_otp(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT pubid FROM NormalUser WHERE email = %s OR phone = %s',
+                       [request.data.get('email'),
+                        request.data.get('phone')])
+        result = cursor.fetchone()
+
+    if result is None:
+        return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
+    otp = utils.generate_otp(result[0])
+    return Response(otp)
+
+
+@api_view(['POST'])
+def login(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT pubid FROM NormalUser WHERE email = %s OR phone = %s',
+                       [request.data.get('email'),
+                        request.data.get('phone')])
+        result = cursor.fetchone()
+
+    if result is None:
+        return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
+
+    if not utils.validate_otp(result[0], request.data.get('otp')):
+        return Response("Invalid password", status=status.HTTP_401_UNAUTHORIZED)
+
+    # TODO: should change?
+    custom_user = User.objects.get(id=result[0])
+    user_serializer = UserSerializer(custom_user)
+    token, created = Token.objects.get_or_create(user=custom_user)
+    resp = Response({"token": token.key, "user": user_serializer.data})
+    resp.set_cookie(key='token', value=token.key, httponly=True)
+    return resp
+
+
+@api_view(['GET']) # Only for test, Will get removed
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def test_token(request):
+    print(request.META['HTTP_AUTHORIZATION'])
+    return Response("passed!")
 
 class NormalUserAPIView(APIView):
     def get(self, request):
