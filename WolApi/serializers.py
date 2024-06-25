@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 
 from datetime import datetime
 
-
+# TODO: How to handle errors raised in sql?
+# TODO: make field names camelCase
+# TODO: Maybe move all sql codes to views?
 class NormalUserSerializer(serializers.Serializer):
     isactive = serializers.BooleanField(required=False)
     firstname = serializers.CharField(max_length=255)
@@ -16,13 +18,6 @@ class NormalUserSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # TODO : Maybe check city?
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT * FROM NormalUser WHERE email = %s OR phone = %s",
-                [attrs.get('email'), attrs.get('phone')]
-            )
-            if cursor.fetchone() is not None:
-                raise serializers.ValidationError("Email or Phone already exists")
         if attrs.get("email") is None and attrs.get("phone") is None:
             raise serializers.ValidationError("Email and Phone cant be both null")
         if "phone" in attrs and len(attrs["phone"]) != 11:
@@ -30,7 +25,14 @@ class NormalUserSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
+
         with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM NormalUser WHERE email = %s OR phone = %s",
+                [validated_data.get('email'), validated_data.get('phone')]
+            )
+            if cursor.fetchone() is not None:
+                raise serializers.ValidationError("Email or Phone already exists")
             isactive = validated_data["isactive"] if "isactive" in validated_data else True
             cursor.execute(
                 "INSERT INTO Publisher (isactive, regdate) VALUES (%s, %s) RETURNING pubid",
@@ -102,17 +104,15 @@ class AdvertisementSerializer(serializers.Serializer):
     addesc = serializers.CharField(max_length=511)
     catid = serializers.IntegerField() # TODO : check category
 
-    def set_pubid(self, pubid):
-        self.pubid = pubid
-
 
     def create(self, validated_data):
         with connection.cursor() as cursor:
             temp_time = datetime.now()
+            print(">>>>>>>>>", self.context.get('pubId'))
             cursor.execute(
                 "INSERT INTO Advertisement (PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID)"
                 "values (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING AdvertisementID;",
-                [self.pubid,
+                [self.context['pubId'],
                  validated_data.get('title'),
                  validated_data.get('price'),
                  temp_time,
@@ -121,9 +121,85 @@ class AdvertisementSerializer(serializers.Serializer):
                  validated_data.get('addesc'),
                  validated_data.get('catid')]
             )
+            temp_time = datetime.now()
+            adId = cursor.fetchone()[0]
+            cursor.execute(
+                "INSERT INTO AdStatus (AdvertisementID, AdStateID, UpdatedAt) "
+                "values(%s, %s, %s)",
+                [adId,
+                 0,
+                 temp_time]
+            )
         return validated_data
 
 
+class AdStatusSerializer(serializers.Serializer):
+    adState = serializers.CharField(max_length=255)
+    adminComment = serializers.CharField(required=False, max_length=255)
+
+    def validate(self, attrs):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT AdStateName FROM StatusState"
+            )
+
+            if attrs.get("adState").upper() not in [x for (x,) in cursor.fetchall()]:
+                raise serializers.ValidationError(f"Unknown ad state {attrs.get('adState')}")
+
+        return attrs
+
+    def create(self, validated_data):
+        temp_time = datetime.now()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT AdStateID FROM StatusState WHERE AdStateName = %s",
+                [validated_data.get('adState').upper()]
+            )
+
+            adStateId = cursor.fetchone()[0]
+            adminId = self.context['adminId']
+            adId = self.context['adId']
+
+            cursor.execute(
+                "UPDATE AdStatus SET AdStateID = %s, AdminComment = %s, UpdatedAt = %s WHERE AdvertisementID = %s",
+                [adStateId, self.validated_data['adminComment'], temp_time, adId]
+            )
+
+            cursor.execute(
+                "insert into Modified (AdminID, AdvertisementID, ModDate, ToStateID) "
+                "values (%s, %s, %s, %s)",
+                [adminId, adId, temp_time, adStateId]
+            )
+
+        return validated_data
+
+class BusinessSerializer(serializers.Serializer):
+    bname = serializers.CharField(max_length=255)
+    catid = serializers.IntegerField(default=0)
+    registerationnum = serializers.IntegerField()
+    cityid = serializers.IntegerField()
+
+    def create(self, validated_data):
+        with connection.cursor() as cursor:
+            # TODO : Check Cat and City
+            isactive = validated_data["isactive"] if "isactive" in validated_data else True
+            cursor.execute(
+                "INSERT INTO Publisher (isactive, regdate) VALUES (%s, %s) RETURNING pubid",
+                [isactive,
+                 datetime.now()]
+            )
+            pubid = cursor.fetchone()[0]
+            cursor.execute(
+                "INSERT INTO Business (PubID, UserID, BName, CatID, RegistrationNum, CityID) "
+                "values (%s, %s, %s, %s, %s, %s);",
+                [pubid,
+                 self.context.get('userId'),
+                 validated_data.get('bname'),
+                 validated_data.get('catid'),
+                 validated_data.get('registerationnum'),
+                 validated_data.get('cityid')]
+            )
+        return validated_data
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
