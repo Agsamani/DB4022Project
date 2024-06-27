@@ -76,6 +76,7 @@ CREATE TABLE Advertisement (
   UpdateDate TIMESTAMP,
   AdDesc VARCHAR(511),
   CatID INT NOT NULL DEFAULT 0,
+  IsActive BOOLEAN DEFAULT TRUE NOT NULL,
   PRIMARY KEY(AdvertisementID),
   FOREIGN KEY(PubID) REFERENCES Publisher(PubID)
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -116,12 +117,13 @@ CREATE TABLE ReportCategory (
 );
 
 CREATE TABLE Report (
-  AdvertisementID INT,
-  ReportID INT,
+  AdvertisementID INT NOT NULL,
+  ReportID SERIAL,
   UserID INT NOT NULL,
   CatID INT,
   RDesc VARCHAR(511),
   PRIMARY KEY(AdvertisementID, ReportID),
+  UNIQUE(AdvertisementID, UserID), -- So users dont spam report
   FOREIGN KEY(AdvertisementID) REFERENCES Advertisement(AdvertisementID)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY(UserID) REFERENCES NormalUser(PubID)

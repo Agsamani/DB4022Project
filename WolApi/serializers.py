@@ -9,7 +9,7 @@ from datetime import datetime
 # TODO: make field names camelCase
 # TODO: Maybe move all sql codes to views?
 class NormalUserSerializer(serializers.Serializer):
-    isactive = serializers.BooleanField(required=False)
+    isactive = serializers.BooleanField(default=True)
     firstname = serializers.CharField(max_length=255)
     lastname = serializers.CharField(max_length=255)
     email = serializers.EmailField(required=False)
@@ -33,10 +33,9 @@ class NormalUserSerializer(serializers.Serializer):
             )
             if cursor.fetchone() is not None:
                 raise serializers.ValidationError("Email or Phone already exists")
-            isactive = validated_data["isactive"] if "isactive" in validated_data else True
             cursor.execute(
                 "INSERT INTO Publisher (isactive, regdate) VALUES (%s, %s) RETURNING pubid",
-                [isactive,
+                [validated_data.get("isactive"),
                  datetime.now()]
             )
             pubid = cursor.fetchone()[0]
@@ -166,8 +165,8 @@ class AdStatusSerializer(serializers.Serializer):
             )
 
             cursor.execute(
-                "insert into Modified (AdminID, AdvertisementID, ModDate, ToStateID) "
-                "values (%s, %s, %s, %s)",
+                "INSERT INTO Modified (AdminID, AdvertisementID, ModDate, ToStateID) "
+                "VALUES (%s, %s, %s, %s)",
                 [adminId, adId, temp_time, adStateId]
             )
 
@@ -199,6 +198,29 @@ class BusinessSerializer(serializers.Serializer):
                  validated_data.get('registerationnum'),
                  validated_data.get('cityid')]
             )
+        return validated_data
+
+
+class ReportSerializer(serializers.Serializer):
+    catid = serializers.IntegerField(default=0)
+    rdesc = serializers.CharField(required=False, max_length=511)
+
+    def create(self, validated_data):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT UserID FROM Report WHERE UserID = %s",
+                [self.context['userId']]
+            )
+            if len(cursor.fetchone()) != 0:
+                raise serializers.ValidationError("User already reported this add")
+
+            cursor.execute("INSERT INTO Report (AdvertisementID, UserID, CatID, RDesc) "
+                           "VALUES (%s, %s, %s, %s)",
+                           [self.context['adId'],
+                            self.context['userId'],
+                            self.validated_data.get('catid'),
+                            self.validated_data.get('rdesc')])
+
         return validated_data
 
 class UserSerializer(serializers.ModelSerializer):

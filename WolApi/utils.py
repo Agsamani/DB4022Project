@@ -16,6 +16,6 @@ def generate_otp(identifier, length=6):
 def validate_otp(identifier, otp):
     cached_otp = cache.get(identifier)
     if cached_otp is not None and cached_otp == otp:
-        cache.delete(identifier)  # Invalidate OTP after successful validation
+        cache.delete(identifier)
         return True
     return False

@@ -7,6 +7,8 @@ urlpatterns = [
     path('user/adv', views.get_user_ads, name='getUserAds'),
     path('user/new-business', views.new_business, name='newBusiness'),
 
+    path('user/<int:pub_id>/deactivate', views.deactivate_user, name='newBusiness'),
+
     path('admin/', views.AdminAPIView.as_view(), name='admin'),
     path('login/', views.login, name='login'),
     path('admin-login/', views.admin_login, name='login'),
@@ -19,5 +21,8 @@ urlpatterns = [
 
     path('adv/latest/', views.get_latest_ads, name='latestAds'),
     path('adv/<int:ad_id>/', views.get_ad_detail, name='adDetail'),
+    path('adv/<int:ad_id>/report', views.report_ad, name='reportAd'),
+    path('adv/<int:ad_id>/get-reports', views.get_ad_reports, name='getReportAd'),
+    path('adv/<int:ad_id>/deactivate', views.deactivate_ad, name='deactivateAd'),
 
 ]

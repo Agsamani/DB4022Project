@@ -90,8 +90,8 @@ def admin_login(request):
     return resp
 
 @api_view(['GET']) # Only for test, Will get removed
-# @authentication_classes([SessionAuthentication, TokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def test_token(request):
     print(request.GET.get('limit', 10))
     print(request.user)
@@ -176,7 +176,9 @@ def get_latest_ads(request):
     lim = request.GET.get('limit', 10)
     with connection.cursor() as cursor:
         # TODO: Maybe return publisher and business name
-        cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate FROM Advertisement ORDER BY CreationDate DESC LIMIT %s',
+        cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate FROM Advertisement '
+                       'WHERE IsActive = TRUE '
+                       'ORDER BY CreationDate DESC LIMIT %s',
                        [lim])
         rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
@@ -251,3 +253,50 @@ def new_business(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def report_ad(request, ad_id):
+    serializer = ReportSerializer(data=request.data, context={"userId": request.user.username, "adId": ad_id})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAdminUser])
+def get_ad_reports(request, ad_id):
+    lim = request.GET.get('limit', 10)
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT * FROM Report WHERE AdvertisementID = %s LIMIT %s',
+                       [ad_id, lim])
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        result = [
+            dict(zip(columns, row))
+            for row in rows
+        ]
+    return Response(result)
+
+
+@api_view(['PATCH'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAdminUser])
+def deactivate_ad(request, ad_id):
+    with connection.cursor() as cursor:
+        cursor.execute('UPDATE Advertisement SET IsActive = FALSE WHERE AdvertisementID = %s',
+                       [ad_id])
+    return Response(status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def deactivate_user(request, pub_id):
+    with connection.cursor() as cursor:
+        cursor.execute('UPDATE Publisher SET IsActive = FALSE WHERE PubID = %s',
+                       [pub_id])
+    return Response(status.HTTP_200_OK)
