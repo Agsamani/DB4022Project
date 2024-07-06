@@ -177,7 +177,8 @@ CREATE TABLE Other (
 CREATE TABLE Visit (
   UserID INT,
   AdvertisementID INT,
-  PRIMARY KEY(UserID, AdvertisementID),
+  VisitTime TIMESTAMP,
+  PRIMARY KEY(UserID, AdvertisementID, VisitTime),
   FOREIGN KEY(UserID) REFERENCES NormalUser(PubID),
   FOREIGN KEY(AdvertisementID) REFERENCES Advertisement(AdvertisementID)
     ON DELETE CASCADE ON UPDATE CASCADE

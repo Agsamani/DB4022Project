@@ -1,3 +1,5 @@
+from datetime import time
+
 from django.shortcuts import render
 from django.db import connection
 
@@ -141,9 +143,12 @@ class AdvertisementAPIView(APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request): # TODO: Wot is this
         with connection.cursor() as cursor:
-            cursor.execute('SELECT * FROM Advertisement')
+            cursor.execute('SELECT * FROM Advertisement '
+                           'JOIN Publisher ON Publisher.pubId = Advertisement.pubId '
+                           'WHERE Advertisement.IsActive = TRUE AND Publisher.IsActive = TRUE '
+                           )
             rows = cursor.fetchall()
             columns = [col[0] for col in cursor.description]
             result = [
@@ -153,7 +158,7 @@ class AdvertisementAPIView(APIView):
         return Response(result)
 
     def post(self, request):
-        serializer = AdvertisementSerializer(data=request.data, context={"pubId": request.user.username}) # TODO : .dict or not .dict? Ajax or not Ajax?
+        serializer = AdvertisementSerializer(data=request.data, context={"pubId": request.user.username, "images": request.FILES.getlist('images')}) # TODO : .dict or not .dict? Ajax or not Ajax?
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -177,7 +182,8 @@ def get_latest_ads(request):
     with connection.cursor() as cursor:
         # TODO: Maybe return publisher and business name
         cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate FROM Advertisement '
-                       'WHERE IsActive = TRUE '
+                       'JOIN Publisher ON Publisher.pubId = Advertisement.pubId '
+                       'WHERE Advertisement.IsActive = TRUE AND Publisher.IsActive = TRUE '
                        'ORDER BY CreationDate DESC LIMIT %s',
                        [lim])
         rows = cursor.fetchall()
@@ -189,10 +195,17 @@ def get_latest_ads(request):
     return Response(result)
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([AllowAny])
 def get_ad_detail(request, ad_id):
     with connection.cursor() as cursor:
         # TODO: Maybe return publisher and business name
-        cursor.execute('SELECT * FROM Advertisement WHERE AdvertisementID = %s',
+        cursor.execute('SELECT * FROM Advertisement '
+                       'LEFT JOIN Vehicle ON Advertisement.AdvertisementId = Vehicle.AdvertisementId '
+                       'LEFT JOIN RealEstate ON Advertisement.AdvertisementId = RealEstate.AdvertisementId '
+                       'LEFT JOIN HomeAppliance ON Advertisement.AdvertisementId = HomeAppliance.AdvertisementId '
+                       'LEFT JOIN DigitalProduct ON Advertisement.AdvertisementId = DigitalProduct.AdvertisementId '
+                       'WHERE Advertisement.AdvertisementID = %s',
                        [ad_id])
         rows = cursor.fetchall()
         if len(rows) == 0:
@@ -202,6 +215,11 @@ def get_ad_detail(request, ad_id):
             dict(zip(columns, row))
             for row in rows
         ]
+        if not request.user.is_anonymous:
+            userId = request.user.username
+            temp_time = datetime.now()
+            cursor.execute("INSERT INTO Visit (UserID, AdvertisementID, VisitTime) VALUES (%s, %s, %s)",
+                           [userId, ad_id, temp_time])
     return Response(result)
 
 @api_view(['PUT'])  # TODO: Check if works with permissions
@@ -300,3 +318,42 @@ def deactivate_user(request, pub_id):
         cursor.execute('UPDATE Publisher SET IsActive = FALSE WHERE PubID = %s',
                        [pub_id])
     return Response(status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def search_advertisement(request):
+    search_string = request.GET.get('search_string', "")
+    catid = request.GET.get('catid', None)
+    with connection.cursor() as cursor:
+        cursor.execute(f"SELECT advertisement.* FROM advertisement "
+                        "JOIN Publisher ON Publisher.pubId = Advertisement.pubId "
+                        "WHERE Advertisement.IsActive = TRUE AND Publisher.IsActive = TRUE "
+                       f"AND title LIKE '%{search_string}%'" +
+                       (f"AND catid = {catid}" if catid else ""),)
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        result = [
+            dict(zip(columns, row))
+            for row in rows
+        ]
+    return Response(result)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    request.user.auth_token.delete()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def file_test(request):
+    f = request.FILES.getlist('s')
+    a =0
+    for i in f:
+        if 'png' or 'jpeg' in i.content_type: # TODO: check file size
+            print(i.name)
+            utils.save_request_image(i, a)
+            a += 1
+
+
+    return Response("hi")

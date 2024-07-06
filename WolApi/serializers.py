@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db import connection
 from django.contrib.auth.models import User
 
-
+from . import utils
 from datetime import datetime
 
 # TODO: How to handle errors raised in sql?
@@ -103,11 +103,18 @@ class AdvertisementSerializer(serializers.Serializer):
     addesc = serializers.CharField(max_length=511)
     catid = serializers.IntegerField() # TODO : check category
 
+    # Category specific fields
+    brand = serializers.CharField(max_length=255, required=False)
+    material = serializers.CharField(max_length=255, required=False)
+    productionyear = serializers.IntegerField(required=False)
+    area = serializers.IntegerField(required=False)
+    constructiondate = serializers.DateField(required=False)
+    model = serializers.CharField(max_length=255, required=False)
+
 
     def create(self, validated_data):
         with connection.cursor() as cursor:
             temp_time = datetime.now()
-            print(">>>>>>>>>", self.context.get('pubId'))
             cursor.execute(
                 "INSERT INTO Advertisement (PubID, Title, Price, CreationDate, CityID, UpdateDate, AdDesc, CatID)"
                 "values (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING AdvertisementID;",
@@ -129,6 +136,35 @@ class AdvertisementSerializer(serializers.Serializer):
                  0,
                  temp_time]
             )
+            match int(validated_data.get('catid')):
+                case 0:
+                    cursor.execute(f"INSERT INTO Other (AdvertisementID) VALUES (%s)",
+                                   adId)
+                case 1:
+                    cursor.execute(f"INSERT INTO HomeAppliance (AdvertisementID, Brand, Material) VALUES (%s, %s, %s)",
+                                   [adId, validated_data.get('brand'), validated_data.get('material')])
+                case 2:
+                    cursor.execute(f"INSERT INTO Vehicle (AdvertisementID, Brand, ProductionYear) VALUES (%s, %s, %s)",
+                                   [adId, validated_data.get('brand'), validated_data.get('productionyear')])
+                case 3:
+                    cursor.execute(f"INSERT INTO RealEstate (AdvertisementID, Area, ConstructionDate) VALUES (%s, %s, %s)",
+                                   [adId, validated_data.get('area'), validated_data.get('constructiondate')])
+                case 4:
+                    cursor.execute(f"INSERT INTO DigitalProduct (AdvertisementID, Brand, Model) VALUES (%s, %s, %s)",
+                                   [adId, validated_data.get('brand'), validated_data.get('model')])
+
+            for img in self.context.get('images'):
+                cursor.execute(
+                    "INSERT INTO Images (AdvertisementID, Url) VALUES (%s, %s) RETURNING ImageID",
+                    [adId, ""]
+                )
+                imageId = cursor.fetchone()[0]
+                url = utils.save_request_image(img, imageId)
+                cursor.execute(
+                    "UPDATE Images SET Url = %s WHERE ImageID = %s",
+                    [str(url), adId]
+                )
+
         return validated_data
 
 

@@ -15,7 +15,10 @@ urlpatterns = [
     path('get-otp/', views.get_otp, name='otpGet'),
     path('admin-get-otp/', views.admin_get_otp, name='adminOtpGet'),
     path('adv/', views.AdvertisementAPIView.as_view(), name='adView'),
+    path('logout/', views.logout, name='logout'),
+
     path('test/', views.test_token, name='test'),
+    path('file-test/', views.file_test, name='fileTest'),
 
     path('admin/ad-check/<int:ad_id>', views.admin_update_ad_status, name='adminUpdateAdStatus'),
 
@@ -25,4 +28,5 @@ urlpatterns = [
     path('adv/<int:ad_id>/get-reports', views.get_ad_reports, name='getReportAd'),
     path('adv/<int:ad_id>/deactivate', views.deactivate_ad, name='deactivateAd'),
 
+    path('adv/search', views.search_advertisement, name='searchAd'),
 ]
