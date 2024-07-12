@@ -92,11 +92,9 @@ def admin_login(request):
     return resp
 
 @api_view(['GET']) # Only for test, Will get removed
-@authentication_classes([SessionAuthentication, TokenAuthentication])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([SessionAuthentication, TokenAuthentication])
+# @permission_classes([IsAuthenticated])
 def test_token(request):
-    print(request.GET.get('limit', 10))
-    print(request.user)
     return Response("Passed")
 
 
@@ -243,7 +241,7 @@ def update_user_profile(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])  # TODO: Check if works with permissions
+@api_view(['GET'])  
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_user_ads(request):
@@ -357,3 +355,8 @@ def file_test(request):
 
 
     return Response("hi")
+
+
+@api_view(['GET'])
+def hello_react(request):
+    return Response("~Hello, React!")

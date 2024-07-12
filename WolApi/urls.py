@@ -29,4 +29,6 @@ urlpatterns = [
     path('adv/<int:ad_id>/deactivate', views.deactivate_ad, name='deactivateAd'),
 
     path('adv/search', views.search_advertisement, name='searchAd'),
+
+    path('hello-react', views.hello_react, name='helloReact'),
 ]
