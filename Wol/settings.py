@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'rest_framework.authtoken',
+    'django_elasticsearch_dsl',
 ]
 
 MIDDLEWARE = [
@@ -158,3 +159,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ORIGIN_WHITELIST = [
      'http://localhost:5173'
 ]
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://localhost:9200',  # Replace with your Elasticsearch server address
+        'http_auth': ('elastic', 'elastic')  # Replace with your Elasticsearch username and password
+    },
+}

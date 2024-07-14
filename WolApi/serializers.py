@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 
 from . import utils
 from datetime import datetime
+from .elastic_utils import index_advertisement
 
 # TODO: How to handle errors raised in sql?
-# TODO: make field names camelCase
-# TODO: Maybe move all sql codes to views?
 class NormalUserSerializer(serializers.Serializer):
     isactive = serializers.BooleanField(default=True)
     firstname = serializers.CharField(max_length=255)
@@ -88,6 +87,8 @@ class AdminSerializer(serializers.Serializer):
                  validated_data.get('phone')]
             )
             adminid = cursor.fetchone()[0]
+
+        User._meta.get_field('username')._unique = False
         User.objects.create(username=adminid,
                             email=validated_data.get('email') if 'email' in validated_data else validated_data.get('phone'),
                             password="admin12345678",
@@ -164,6 +165,14 @@ class AdvertisementSerializer(serializers.Serializer):
                     "UPDATE Images SET Url = %s WHERE ImageID = %s",
                     [str(url), adId]
                 )
+            ad_data = {
+                'AdvertisementID': adId,
+                'Title': validated_data.get('title'),
+                'Price': validated_data.get('price'),
+                'CreationDate': temp_time,
+                'IsActive': True
+            }
+            index_advertisement(ad_data=ad_data)
 
         return validated_data
 
@@ -247,7 +256,7 @@ class ReportSerializer(serializers.Serializer):
                 "SELECT UserID FROM Report WHERE UserID = %s",
                 [self.context['userId']]
             )
-            if len(cursor.fetchone()) != 0:
+            if cursor.fetchone():
                 raise serializers.ValidationError("User already reported this add")
 
             cursor.execute("INSERT INTO Report (AdvertisementID, UserID, CatID, RDesc) "

@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
+from elastic import get_es_client
+from .elastic_utils import deactivate_advertisement
 from .serializers import *
 from . import utils
 
@@ -20,6 +22,7 @@ from . import utils
 
 @api_view(['POST'])
 def get_otp(request):
+    print(request.data)
     with connection.cursor() as cursor:
         cursor.execute('SELECT pubid FROM NormalUser WHERE email = %s OR phone = %s',
                        [request.data.get('email'),
@@ -44,9 +47,8 @@ def login(request):
         return Response("Invalid credentials", status=status.HTTP_401_UNAUTHORIZED)
 
     if not utils.validate_otp(result[0], request.data.get('otp')):
-        return Response("Invalid password", status=status.HTTP_401_UNAUTHORIZED)
+        return Response("Invalid otp", status=status.HTTP_401_UNAUTHORIZED)
 
-    # TODO: should change?
     custom_user = User.objects.get(id=result[0])
     user_serializer = UserSerializer(custom_user)
     token, created = Token.objects.get_or_create(user=custom_user)
@@ -92,8 +94,8 @@ def admin_login(request):
     return resp
 
 @api_view(['GET']) # Only for test, Will get removed
-# @authentication_classes([SessionAuthentication, TokenAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def test_token(request):
     return Response("Passed")
 
@@ -156,10 +158,12 @@ class AdvertisementAPIView(APIView):
         return Response(result)
 
     def post(self, request):
+        print(request.FILES.getlist('images'))
         serializer = AdvertisementSerializer(data=request.data, context={"pubId": request.user.username, "images": request.FILES.getlist('images')}) # TODO : .dict or not .dict? Ajax or not Ajax?
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -179,8 +183,9 @@ def get_latest_ads(request):
     lim = request.GET.get('limit', 10)
     with connection.cursor() as cursor:
         # TODO: Maybe return publisher and business name
-        cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate FROM Advertisement '
+        cursor.execute('SELECT Advertisement.AdvertisementID, Title, Price, CreationDate, Images.imageid FROM Advertisement '
                        'JOIN Publisher ON Publisher.pubId = Advertisement.pubId '
+                       'LEFT JOIN Images On Images.AdvertisementID = Advertisement.AdvertisementID '
                        'WHERE Advertisement.IsActive = TRUE AND Publisher.IsActive = TRUE '
                        'ORDER BY CreationDate DESC LIMIT %s',
                        [lim])
@@ -203,6 +208,7 @@ def get_ad_detail(request, ad_id):
                        'LEFT JOIN RealEstate ON Advertisement.AdvertisementId = RealEstate.AdvertisementId '
                        'LEFT JOIN HomeAppliance ON Advertisement.AdvertisementId = HomeAppliance.AdvertisementId '
                        'LEFT JOIN DigitalProduct ON Advertisement.AdvertisementId = DigitalProduct.AdvertisementId '
+                       'LEFT JOIN Images On Images.AdvertisementID = Advertisement.AdvertisementID '
                        'WHERE Advertisement.AdvertisementID = %s',
                        [ad_id])
         rows = cursor.fetchall()
@@ -248,7 +254,7 @@ def get_user_ads(request):
     lim = request.GET.get('limit', 10)
     with connection.cursor() as cursor:
         # TODO: Maybe return publisher and business name
-        cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate FROM Advertisement WHERE PubID = %s '
+        cursor.execute('SELECT AdvertisementID, Title, Price, CreationDate, IsActive FROM Advertisement WHERE PubID = %s '
                        'ORDER BY CreationDate DESC LIMIT %s',
                        [request.user.username, lim])
         rows = cursor.fetchall()
@@ -258,6 +264,22 @@ def get_user_ads(request):
             for row in rows
         ]
     return Response(result)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_detail(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT NormalUSer.*, City.CName FROM NormalUser JOIN '
+                       'City ON NormalUser.CityID = City.CityID WHERE NormalUser.PubID = %s',
+                       [request.user.username])
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        result = [
+            dict(zip(columns, row))
+            for row in rows
+        ]
+    return Response(result[0])
 
 
 @api_view(['POST'])  # TODO: Check if works with permissions
@@ -305,6 +327,7 @@ def deactivate_ad(request, ad_id):
     with connection.cursor() as cursor:
         cursor.execute('UPDATE Advertisement SET IsActive = FALSE WHERE AdvertisementID = %s',
                        [ad_id])
+        deactivate_advertisement(ad_id, False)
     return Response(status.HTTP_200_OK)
 
 
@@ -319,7 +342,7 @@ def deactivate_user(request, pub_id):
 
 
 @api_view(['GET'])
-def search_advertisement(request):
+def search_old(request):
     search_string = request.GET.get('search_string', "")
     catid = request.GET.get('catid', None)
     with connection.cursor() as cursor:
@@ -358,5 +381,64 @@ def file_test(request):
 
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def hello_react(request):
-    return Response("~Hello, React!")
+    return Response(request.user.username)
+
+@api_view(['GET'])
+def search(request):
+    es_client = get_es_client()
+    print(request.GET)
+
+    search_results = es_client.search(
+        index='advertisements',
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "wildcard": {
+                                "Title": '*' + request.GET.get('title', '') + '*'
+                            }
+                        },
+                        {
+                          "range": {
+                             "Price": {
+                                "gte": float(request.GET.get('minPrice', '0.0')),
+                                "lte": float(request.GET.get('maxPrice', '1e20')),
+                                }
+                            }
+                        }
+                    ],
+                    "filter": [
+                        {
+                            "term": {
+                                "IsActive": True
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    )
+
+    hits = search_results['hits']['hits']
+    results = [{'id': hit['_id'], 'hit': hit['_source']} for hit in
+               hits]
+
+    print(results)
+
+    return Response({'results': results})
+
+@api_view(['GET'])
+def get_cities(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT * FROM City')
+        rows = cursor.fetchall()
+        columns = [col[0] for col in cursor.description]
+        result = [
+            dict(zip(columns, row))
+            for row in rows
+        ]
+    return Response(result)

@@ -16,7 +16,7 @@ NormalUser JOIN (
     SELECT UserID FROM Business GROUP BY UserID
 ) AS S ON NormalUser.PubID = S.UserID;
 
-3,4
+--3,4
 SELECT NU.FirstName, NU.LastName, 
     CONCAT(
         CAST(EXTRACT(YEAR FROM Advertisement.CreationDate) AS VARCHAR(4)),
